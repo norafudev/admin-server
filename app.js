@@ -30,10 +30,10 @@ app.use(
 )
 
 // logger
-app.use(async (ctx, next) => {
-  log4js.error("test")
-  await next()
-})
+// app.use(async (ctx, next) => {
+//   log4js.error("test")
+//   await next()
+// })
 
 // routes
 app.use(index.routes(), index.allowedMethods())
