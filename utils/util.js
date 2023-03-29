@@ -2,7 +2,7 @@
  * 通用结构
  */
 
-import log4js from "./log4"
+const log4js = require("./log4")
 
 // 状态码
 const CODE = {

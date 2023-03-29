@@ -7,7 +7,8 @@ const bodyparser = require("koa-bodyparser")
 const logger = require("koa-logger")
 const log4js = require("./utils/log4")
 
-const index = require("./routes/index")
+const Router = require("koa-router")
+const router = new Router()
 const users = require("./routes/users")
 
 // error handler
@@ -32,15 +33,11 @@ app.use(
   })
 )
 
-// logger
-// app.use(async (ctx, next) => {
-//   log4js.error("test")
-//   await next()
-// })
-
 // routes
-app.use(index.routes(), index.allowedMethods())
-app.use(users.routes(), users.allowedMethods())
+// 一级路由，为后端路由加上统一的前缀/api，便于跟前端路由区分
+router.prefix = "/api"
+router.use(users.routes(), users.allowedMethods()) //二级路由
+app.use(router.routes(), router.allowedMethods()) //注册router
 
 // error-handling
 app.on("error", (err, ctx) => {
