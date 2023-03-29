@@ -13,6 +13,9 @@ const users = require("./routes/users")
 // error handler
 onerror(app)
 
+// 加载数据库
+require("./config/mongodb")
+
 // middlewares
 app.use(
   bodyparser({
