@@ -27,12 +27,12 @@ module.exports = {
       skipIndex,
     }
   },
-  sucess(data = "", msg = "", code = CODE.SUCCESS) {
-    log4js.debug(data)
+  success(data = "", msg = "", code = CODE.SUCCESS) {
+    log4js.info(data)
     return { code, data, msg }
   },
-  fail(data = "", msg = "", code = CODE.BUSSINESS_ERROR) {
+  fail(msg = "", code = CODE.BUSSINESS_ERROR, data = "") {
     log4js.error(msg)
-    return { code, data, msg }
+    return { code, msg, data }
   },
 }

@@ -7,6 +7,7 @@ router.prefix("/users")
 
 router.post("/login", async (ctx) => {
   try {
+    console.log(ctx)
     const { userName, userPwd } = ctx.request.body
     const res = await User.findOne({
       userName, //当key和value同名，简写
@@ -18,8 +19,7 @@ router.post("/login", async (ctx) => {
       ctx.body = util.fail("用户名或密码错误")
     }
   } catch (error) {
-    // ctx.body = util.fail(error)
-    console.log(error)
+    ctx.body = util.fail(error)
   }
 })
 

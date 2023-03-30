@@ -17,7 +17,7 @@ const levels = {
 log4js.configure({
   appenders: {
     debug: { type: "stdout" },
-    info: { type: "file", filename: "/logs/info_log.log" },
+    info: { type: "file", filename: "logs/info_log.log" },
     error: {
       type: "dateFile",
       filename: "logs/err_logs",

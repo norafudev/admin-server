@@ -31,6 +31,6 @@ const userSchema = mongoose.Schema({
 })
 
 // 以UserSchema为模板，创建model模型-User，模型用来创建和连接集合
-const User = mongoose.model("users", userSchema, "users")
+const User = mongoose.model("user", userSchema)
 
-exports.default = User
+module.exports = User
