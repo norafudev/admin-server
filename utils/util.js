@@ -14,12 +14,13 @@ const CODE = {
   AUTH_ERROR: 50001, //认证失败或token过期
 }
 
-/**分页功能
- * @param {number} pageNum
- * @param {number} pageSize
- * */
-
 module.exports = {
+  // 状态码
+  CODE,
+  /**分页功能
+   * @param {number} pageNum
+   * @param {number} pageSize
+   * */
   pager({ pageNum = 1, pageSize = 10 }) {
     const skipIndex = (pageNum - 1) * pageSize
     return {
@@ -27,10 +28,12 @@ module.exports = {
       skipIndex,
     }
   },
+  // 输出成功信息
   success(data = "", msg = "", code = CODE.SUCCESS) {
     log4js.info(data)
     return { code, data, msg }
   },
+  // 输出错误信息
   fail(msg = "", code = CODE.BUSSINESS_ERROR, data = "") {
     log4js.error(msg)
     return { code, msg, data }
