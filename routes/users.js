@@ -82,4 +82,30 @@ router.post("/delete", async (ctx) => {
   ctx.body = util.fail("删除失败")
 })
 
+// 用户新增、编辑
+router.post("/operate", async (ctx) => {
+  const {
+    userId,
+    userName,
+    userEmail,
+    mobile,
+    job,
+    state,
+    roleList,
+    deptId,
+    action,
+  } = ctx.request.body
+  if (action == "edit") {
+    try {
+      const res = await User.findOneAndUpdate(
+        { userId },
+        { userName, userEmail, mobile, job, state, roleList, deptId }
+      )
+      ctx.body = util.success(res, "编辑成功")
+    } catch (error) {
+      ctx.body = util.fail("更新失败：", error.stack)
+    }
+  }
+})
+
 module.exports = router

@@ -8,6 +8,7 @@ const mongoose = require("mongoose")
 mongoose.connect(config.DB_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  useFindAndModify: false,
 })
 
 // 监听数据库是否连接成功
