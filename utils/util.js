@@ -17,22 +17,30 @@ const CODE = {
 module.exports = {
   // 状态码
   CODE,
+
   /**分页功能
    * @param {number} pageNum
    * @param {number} pageSize
    * */
+  // 如果前端没传参数，则默认为第一页，10条数据
   pager({ pageNum = 1, pageSize = 10 }) {
+    // 转换为number
+    pageNum *= 1
+    pageSize *= 1
+    // 根据前端传来的pageNum和pageSize计算数据的起始索引
     const skipIndex = (pageNum - 1) * pageSize
     return {
       page: { pageNum, pageSize },
       skipIndex,
     }
   },
+
   // 输出成功信息
   success(data = "", msg = "", code = CODE.SUCCESS) {
     log4js.info(data)
     return { code, data, msg }
   },
+
   // 输出错误信息
   fail(msg = "", code = CODE.BUSSINESS_ERROR, data = "") {
     log4js.error(msg)
