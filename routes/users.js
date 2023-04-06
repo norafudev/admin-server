@@ -2,6 +2,8 @@ const router = require("koa-router")()
 const User = require("../models/userSchema")
 const util = require("../utils/util")
 const jwt = require("jsonwebtoken")
+const Counter = require("../models/counterSchema")
+const md5 = require("md5")
 
 router.prefix("/users")
 
@@ -95,6 +97,7 @@ router.post("/operate", async (ctx) => {
     deptId,
     action,
   } = ctx.request.body
+  // 编辑用户
   if (action == "edit") {
     try {
       const res = await User.findOneAndUpdate(
@@ -104,6 +107,37 @@ router.post("/operate", async (ctx) => {
       ctx.body = util.success(res, "编辑成功")
     } catch (error) {
       ctx.body = util.fail("更新失败：", error.stack)
+    }
+    // 新增用户
+  } else {
+    const res = await User.findOne({ userEmail }) //检测重复用户邮箱
+    if (res) {
+      ctx.body = util.fail(`检测到重复邮箱：${res.userEmail}`)
+      return
+    }
+    const _doc = await Counter.findOneAndUpdate(
+      //userId自增
+      { _id: "userId" },
+      { $inc: { seq: 1 } },
+      { new: true }
+    )
+    try {
+      new User({
+        //新建用户并保存到数据库
+        userId: _doc.seq,
+        role: 1, //默认普通用户
+        userPwd: md5("123456"), //初始密码是123456，使用md5加密
+        userName,
+        userEmail,
+        mobile,
+        job,
+        state,
+        roleList,
+        deptId,
+      }).save()
+      ctx.body = util.success({}, "用户创建成功")
+    } catch (error) {
+      ctx.body = util.fail("用户创建失败")
     }
   }
 })
