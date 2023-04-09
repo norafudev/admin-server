@@ -51,9 +51,9 @@ router.post("/operate", async (ctx) => {
       info = "创建成功"
       // 编辑
     } else if (action == "edit") {
+      params.updateTime = new Date()
       const res = await Menu.findOneAndUpdate({ _id: _id }, params)
       info = "编辑成功"
-      params.updateTime = new Date()
       // 删除
     } else {
       const res = await Menu.findByIdAndRemove(_id)
