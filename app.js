@@ -13,6 +13,7 @@ const router = require("koa-router")()
 const users = require("./routes/users")
 const menus = require("./routes/menus")
 const roles = require("./routes/roles")
+const depts = require("./routes/depts")
 
 // error handler
 onerror(app)
@@ -58,6 +59,7 @@ router.prefix("/api") // 一级路由，为后端路由加上统一的前缀/api
 router.use(users.routes(), users.allowedMethods()) //二级路由
 router.use(menus.routes(), menus.allowedMethods())
 router.use(roles.routes(), roles.allowedMethods())
+router.use(depts.routes(), depts.allowedMethods())
 app.use(router.routes(), router.allowedMethods()) //注册router
 
 // error-handling
