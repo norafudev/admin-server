@@ -1,6 +1,8 @@
 const router = require("koa-router")()
 const Menu = require("../models/menuSchema")
 const util = require("../utils/util")
+const jwt = require("jsonwebtoken")
+const Role = require("../models/RoleSchema")
 
 router.prefix("/menu")
 
@@ -23,7 +25,6 @@ function getTreeMenu(menuList, parentId, list) {
     // !!!数据库中的id都是 ObjectID 类型的对象，需要转成字符串，否则比较的就是对象的内存地址
     if (String(menu.parentId[menu.parentId.length - 1]) == String(parentId)) {
       list.push(menu._doc)
-      console.log("menu._doc======>", menu._doc)
     }
   })
   // 给上级菜单添加children属性
@@ -63,6 +64,36 @@ router.post("/operate", async (ctx) => {
     ctx.body = util.success({}, info)
   } catch (error) {
     ctx.body = util.fail(`菜单操作失败：${error.stack}`)
+  }
+})
+
+// 获取用户对应的权限菜单
+router.get("/permissionList", async (ctx) => {
+  const authorization = ctx.request.headers.authorization
+  if (authorization) {
+    const token = authorization.split(" ")[1]
+    const payload = jwt.verify(token, "shanganshunli123")
+    const { role, roleList } = payload.data
+    let permissionList
+    if (role === 0) {
+      //0-管理员，查询所有菜单
+      permissionList = await Menu.find({})
+    } else {
+      // 查找用户对应的角色有哪些
+      const roles = await Role.find({ _id: { $in: roleList } })
+      let list
+      // 合并多个角色的权限
+      roles.map((role) => {
+        let { checkedKeys, halfCheckedKeys } = role.permissionList
+        list = [...checkedKeys, ...halfCheckedKeys]
+      })
+      // 过滤重复的权限
+      let newList = [...new Set(list)]
+      // 根据newList中的keys获取对应菜单列表
+      permissionList = await Menu.find({ _id: { $in: newList } })
+    }
+    const treeMenu = getTreeMenu(permissionList, null, [])
+    ctx.body = util.success(treeMenu)
   }
 })
 
