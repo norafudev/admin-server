@@ -142,4 +142,14 @@ router.post("/operate", async (ctx) => {
   }
 })
 
+// 获取全部用户列表（创建部门时使用）
+router.get("/all/list", async (ctx) => {
+  try {
+    const list = await User.find({}, "userId userName userEmail")
+    ctx.body = util.success(list)
+  } catch (error) {
+    ctx.body = util.fail(err.stack)
+  }
+})
+
 module.exports = router
