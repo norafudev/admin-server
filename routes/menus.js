@@ -19,7 +19,6 @@ router.get("/list", async (ctx) => {
 
 // 递归拼接树形列表
 function getTreeMenu(menuList, parentId, list) {
-  console.log("进入递归")
   //pi数组的最后一个元素等于我们传入的id，就推进数组
   menuList.forEach((menu) => {
     // !!!数据库中的id都是 ObjectID 类型的对象，需要转成字符串，否则比较的就是对象的内存地址
@@ -67,34 +66,63 @@ router.post("/operate", async (ctx) => {
   }
 })
 
-// 获取用户对应的权限菜单
+// 获取用户对应的权限菜单、按钮
 router.get("/permissionList", async (ctx) => {
   const authorization = ctx.request.headers.authorization
   if (authorization) {
     const token = authorization.split(" ")[1]
     const payload = jwt.verify(token, "shanganshunli123")
     const { role, roleList } = payload.data
-    let permissionList
-    if (role === 0) {
-      //0-管理员，查询所有菜单
-      permissionList = await Menu.find({})
-    } else {
-      // 查找用户对应的角色有哪些
-      const roles = await Role.find({ _id: { $in: roleList } })
-      let list
-      // 合并多个角色的权限
-      roles.map((role) => {
-        let { checkedKeys, halfCheckedKeys } = role.permissionList
-        list = [...checkedKeys, ...halfCheckedKeys]
-      })
-      // 过滤重复的权限
-      let newList = [...new Set(list)]
-      // 根据newList中的keys获取对应菜单列表
-      permissionList = await Menu.find({ _id: { $in: newList } })
-    }
+    const permissionList = await getPermissionList(role, roleList)
+    console.log(permissionList)
     const treeMenu = getTreeMenu(permissionList, null, [])
-    ctx.body = util.success(treeMenu)
+    const actionList = getActionList(treeMenu)
+    ctx.body = util.success({ treeMenu, actionList })
   }
 })
+
+// 获取权限菜单列表
+async function getPermissionList(role, roleList) {
+  let permissionList
+  if (role === 0) {
+    //0-管理员，查询所有菜单
+    permissionList = await Menu.find({})
+  } else {
+    // 查找用户对应的角色有哪些
+    const roles = await Role.find({ _id: { $in: roleList } })
+    let list
+    // 合并多个角色的权限
+    roles.map((role) => {
+      let { checkedKeys, halfCheckedKeys } = role.permissionList
+      list = [...checkedKeys, ...halfCheckedKeys]
+    })
+    // 过滤重复的权限
+    let newList = [...new Set(list)]
+    // 根据newList中的keys获取对应菜单列表
+    permissionList = await Menu.find({ _id: { $in: newList } })
+  }
+  return permissionList
+}
+
+// 获取权限按钮列表
+function getActionList(menuList) {
+  const actionList = []
+  const deep = (menuList) => {
+    menuList.map((item) => {
+      // 二级菜单
+      if (item.action) {
+        item.action.map((action) => {
+          actionList.push(action.menuCode)
+        })
+      }
+      // 一级菜单需要递归
+      if (item.children && !item.action) {
+        deep(item.children)
+      }
+    })
+  }
+  deep(menuList)
+  return actionList
+}
 
 module.exports = router
